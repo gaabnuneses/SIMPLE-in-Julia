@@ -38,7 +38,7 @@ x = 0:dx:xmax; y = 0:dy:ymax
 # Underelaxation properties
 Ωu = .1
 Ωv = .1
-Ωp = .1
+Ωp = .05
 β = 0.95
 
 # u,v,p initialization
@@ -49,9 +49,12 @@ P = zeros(nx+1,ny+1)
 # u,v,p initialization
 u,v,P=setConditions(u,v,P)
 
-u,v,P,ϵ = Solve(u,v,P,500,10,100)
+u,v,P,ϵ = Solve(u,v,P,150,10,200)
 
 # Plot iteration convergence
-# plot(ϵ,m=4,yaxis=:log)
+plot(ϵ,m=4,yaxis=:log)
 
 PlotSolution(u,v,P)
+plot!(size=(1500,500),cbar=false)
+
+plot(x,v,line_z=x)
