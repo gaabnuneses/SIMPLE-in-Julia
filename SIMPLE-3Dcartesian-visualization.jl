@@ -28,7 +28,7 @@ anim=@animate for i=1:size(P,3)
 end
 
 
-gif(anim,"Pressure.gif",fps=8)
+gif(anim,"Pressure.gif",fps=10)
 
 p=plot!()
 
@@ -72,3 +72,7 @@ function plot3dVec(x,y,z,Um,arr=.15)
     return p
     # Rz = [cos(Θ) -sin(Θ) 0;sin(Θ) cos(Θ) 0;]
 end
+
+sum(dy*dx*u[:,:,end-1])
+
+PlotSolution(u[:,:,16],v[:,:,16],P[:,:,16])
