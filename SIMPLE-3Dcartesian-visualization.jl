@@ -113,7 +113,7 @@ anim=@animate for i=1:size(P,1)
 end
 
 
-gif(anim,"teste3d.gif",fps=10)
+gif(anim,"teste3d.gif",fps=15)
 
 let
     X = -15 .+ 30*rand(2000)#-3:.1:3

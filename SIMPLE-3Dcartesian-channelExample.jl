@@ -87,3 +87,8 @@ end
 gif(anim,"uv.gif",fps=2)
 
 PlotSolution(v[16,:,:],w[16,:,:],P[16,:,:])
+
+plot(y,z,u[end,:,:],aspect_ratio=:equal,xlim=(0,1),ylim=(0,1),title="Perfil de velocidades",xlabel="y[m]",ylabel="z[m]",cam=(60,30),st=:heatmap)
+savefig("perfilVelocidade.png")
+
+plot(y,z,u[end,:,:],cam=(60,30),st=:wireframe)

@@ -314,6 +314,22 @@ function Solve(u,v,w,P,nIt,nIT_vel,nIT_P)
             end
         end
 
+        for i in 1:nx+1
+            for j in 1:ny+1
+                for k in 1:nz+1
+                    if x[i]>=1&&x[i]<=2
+                        if y[j]>=0&&y[j]<=1
+                            if z[k]>=0&&z[k]<=.5
+                                u[i,j,k] = 0
+                                v[i,j,k] = 0
+                                w[i,j,k] = 0
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
         if erro[end]<1e-5
             break
         end
