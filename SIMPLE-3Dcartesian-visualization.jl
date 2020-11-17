@@ -28,7 +28,7 @@ anim=@animate for i=1:size(P,3)
 end
 
 
-gif(anim,"Pressure.gif",fps=4)
+gif(anim,"Pressure.gif",fps=8)
 
 p=plot!()
 
