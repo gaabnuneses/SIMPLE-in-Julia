@@ -143,10 +143,10 @@ function MomentoZ(u_old,v_old,w_old,u,v,w,P,nIT_vel)
     Dcu = zeros(nx+1,ny+1,nz+1)
     Dcc = zeros(nx+1,ny+1,nz+1)
     for i in 2:nx,j in 2:ny,k in 3:nz
-        me = .5*ρ*dy*dz*(u_old[i+1,j,k]+u_old[i,j,k])
-        mw = .5*ρ*dy*dz*(u_old[i-1,j,k]+u_old[i,j,k])
-        mn = .5*ρ*dx*dz*(v_old[i,j+1,k]+v_old[i,j,k])
-        ms = .5*ρ*dx*dz*(v_old[i,j,k]+v_old[i,j-1,k])
+        me = .5*ρ*dy*dz*(u_old[i+1,j,k]+u_old[i+1,j,k-1])
+        mw = .5*ρ*dy*dz*(u_old[i,j,k-1]+u_old[i,j,k])
+        mn = .5*ρ*dx*dz*(v_old[i,j+1,k]+v_old[i,j+1,k-1])
+        ms = .5*ρ*dx*dz*(v_old[i,j,k]+v_old[i,j,k-1])
         mt = .5*ρ*dx*dy*(w_old[i,j,k+1]+w_old[i,j,k])
         mb = .5*ρ*dx*dy*(w_old[i,j,k]+w_old[i,j,k-1])
          Ae[i,j,k] = maximum([-me,0])
@@ -168,15 +168,15 @@ function MomentoZ(u_old,v_old,w_old,u,v,w,P,nIT_vel)
     Ab = Ab .+ μ*dx*dy/dz
 
     for i in 2:nx, k in 3:nz
-        mn = .5*ρ*dx*dz*(v_old[i,ny+1,k]+v_old[i,ny,k])
-        ms = .5*ρ*dx*dz*(v_old[i,2,k]+v_old[i,1,k])
+        mn = .5*ρ*dx*dz*(v_old[i,ny+1,k]+v_old[i,ny+1,k-1])
+        ms = .5*ρ*dx*dz*(v_old[i,2,k]+v_old[i,2,k-1])
         An[i,ny,k] = maximum([-mn,0])+ μ*dx*dz/(dy/2)
         As[i,2,k] = maximum([ms,0])+ μ*dx*dz/(dy/2)
     end
 
     for j in 2:ny, k in 3:nz
-        me = .5*ρ*dy*dz*(u_old[nx+1,j,k]+u_old[nx,j,k])
-        mw = .5*ρ*dy*dz*(u_old[2,j,k]+u_old[1,j,k])
+        me = .5*ρ*dy*dz*(u_old[nx+1,j,k]+u_old[nx+1,j,k-1])
+        mw = .5*ρ*dy*dz*(u_old[2,j,k]+u_old[2,j,k-1])
         Ae[nx,j,k] = maximum([-me,0])+ μ*dy*dz/(dx/2)
         Aw[2,j,k] = maximum([mw,0])+ μ*dy*dz/(dx/2)
     end
@@ -215,15 +215,15 @@ function Pressao(u,v,w,P,Apu,Apv,Apw,nIT_P)
         Ab[i,j,k] = ρ*(dx*dy)^2/Apw[i,j,k]
     end
 
-    # Ae[end-1,:,:]=zeros(size(Ae[nx,:,:]))
-    # Aw[2,:,:]=zeros(size(Aw[1,:,:]))
-    # An[:,end-1,:]=zeros(size(An[:,ny,:]))
-    # As[:,2,:]=zeros(size(As[:,1,:]))
-    # At[:,:,end-1]=zeros(size(At[:,:,nz]))
-    # Ab[:,:,2]=zeros(size(Ab[:,:,2]))
+    Ae[nx,:,:]=zeros(size(Ae[nx,:,:]))
+    Aw[2,:,:]=zeros(size(Aw[1,:,:]))
+    An[:,ny,:]=zeros(size(An[:,ny,:]))
+    As[:,2,:]=zeros(size(As[:,1,:]))
+    At[:,:,nz]=zeros(size(At[:,:,nz]))
+    Ab[:,:,2]=zeros(size(Ab[:,:,2]))
 
     App = Ae+Aw+An+As+At+Ab
-    # App[2,2] = 1e30
+    App[2,2,2] = 1e30
     App[nx,:,:]= fill(1e30,size(App[nx,:,:]))
     Pp = zeros(nx+1,ny+1,nz+1)
     Source = zeros(nx+1,ny+1,nz+1)
@@ -295,10 +295,19 @@ function Solve(u,v,w,P,nIt,nIT_vel,nIT_P)
 
         u,v,w = ConservacaoMassa(u,v,w,P,Pp,Apv,Apu,Apw)
 
-        u,v,w,P=setConditions(u,v,w,P)
+        # u,v,w,P=setConditions(u,v,w,P)
+
+        for j in 2:ny, k in 2:nz
+            u[nx+1,j,k] = u[nx,j,k] .+ dx/dy*(v[nx,j,k] - v[nx,j+1,k]) .+ dx/dz*(w[nx,j,k] - w[nx,j,k+1])
+        end
+        u[2,:,:] = fill(1,size(u[2,:,:])) # West
+        u[:,1,:] = fill(0,size(u[:,1,:])) # West
+        u[:,ny+1,:] = fill(0,size(u[:,1,:])) # West
+        u[:,:,1] = fill(0,size(u[:,:,1])) # West
+        u[:,:,nz+1] = fill(0,size(u[:,:,1])) # West
+        P[nx,:,:] = fill(0,size(P[1,:,:]))
 
         erro = ErroSource(u,v,w,erro)
-
         ## Critérios de parada
         if isnan(erro[end])
             break
