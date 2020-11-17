@@ -5,11 +5,11 @@ function setConditions(u,v,w,p)
 
 
     # Flow in a channel
-    u[:,1,:] = fill(0,size(u[:,1,:]))# South
-    u[:,end,:] = fill(0,size(u[:,end,:])) # North
-    u[2,:,:] = fill(1,size(u[2,:,:])) # West
-    u[:,:,1] = fill(0,size(u[:,:,1]))# Bottom
-    u[:,:,end] = fill(0,size(u[:,:,end])) # Top
+    u[:,1,:] = fill(0.0,size(u[:,1,:]))# South
+    u[:,end,:] = fill(0.0,size(u[:,end,:])) # North
+    u[2,:,:] = fill(1.0,size(u[2,:,:])) # West
+    u[:,:,1] = fill(0.0,size(u[:,:,1]))# Bottom
+    u[:,:,end] = fill(0.0,size(u[:,:,end])) # Top
 
     # v[:,1,:] = fill(0,size(v[:,1,:])) # SUL
     # v[:,end,:] = fill(0,size(v[:,end,:])) # Norte
@@ -39,7 +39,7 @@ function setConditions(u,v,w,p)
 end
 
 # Domain Discretization
-nx = 30; ny = 10;  nz = 10
+nx = 90; ny = 30;  nz = 30
 xmax = 3; ymax = 1;  zmax = 1
 dx = xmax/nx; dy = ymax/ny;  dz = ymax/ny
 x = 0:dx:xmax; y = 0:dy:ymax;  z = 0:dy:ymax
@@ -66,13 +66,24 @@ using TimerOutputs
 const to = TimerOutput();
 # u,v,p initialization
 # u,v,w,P=setConditions(u,v,w,P)
-u[2,:,:] = fill(1,size(u[2,:,:])) # West
+u[2,:,:] = fill(1.0,size(u[2,:,:])) # West
 
 @timeit to "Solução" begin
-    u,v,w,P,ϵ = Solve(u,v,w,P,150,10,200)
+    u,v,w,P,ϵ = Solve(u,v,w,P,150,10,100)
 end
 # Plot iteration convergence
 plot(ϵ,m=4,yaxis=:log)
 
-PlotSolution(u[:,6,:],w[:,6,:],P[:,6,:])
-PlotSolution(u[:,:,6],v[:,:,6],P[:,:,6])
+anim = @animate for k in 1:size(u,2)
+    PlotSolution(u[:,k,:],w[:,k,:],P[:,k,:])
+    plot!(clim=(minimum(P),maximum(P)))
+end
+gif(anim,"uw.gif",fps=2)
+
+anim = @animate for k in 1:size(u,2)
+    PlotSolution(u[:,:,k],v[:,:,k],P[:,:,k])
+    plot!(clim=(minimum(P),maximum(P)))
+end
+gif(anim,"uv.gif",fps=2)
+
+PlotSolution(v[16,:,:],w[16,:,:],P[16,:,:])

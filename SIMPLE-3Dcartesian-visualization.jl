@@ -36,7 +36,7 @@ function plot3dVec(x,y,z,Um,arr=.15)
         seta_Z=z[1].-S*New[3,:]
     end
 
-    # p=plot!(seta_X,seta_Y,seta_Z,aspect_ratio=:equal,lw=1,line_z=Um)
+    p=plot!(seta_X,seta_Y,seta_Z,lw=1,line_z=Um)
     return p
     # Rz = [cos(Θ) -sin(Θ) 0;sin(Θ) cos(Θ) 0;]
 end
@@ -95,10 +95,11 @@ anim=@animate for i=1:size(P,1)
             x1=x[i]
             y1=y[j]
             z1=z[k]
-            x2=x[i] + u[i,j,k]
-            y2=y[j] + v[i,j,k]
-            z2=z[k] + w[i,j,k]
-            Um = P[i,j,k]#sqrt(u[i,j,k]^2+v[i,j,k]^2+w[i,j,k]^2)
+            x2=x[i] + .4*u[i,j,k]
+            y2=y[j] + .4*v[i,j,k]
+            z2=z[k] + .4*w[i,j,k]
+            # Um = P[i,j,k]
+            Um = sqrt(u[i,j,k]^2+v[i,j,k]^2+w[i,j,k]^2)
             p=plot3dVec([x1;x2],[y1;y2],[z1;z2],Um)
             # p=scatter!([x[i]],[y[j]],[z[k]],marker_z=P[i,j,k])
         end
@@ -107,11 +108,49 @@ anim=@animate for i=1:size(P,1)
     x′ = [0;3;3;0;0;NaN;0;3;3;0;0;NaN;0;0;NaN;0;0;NaN;3;3;NaN;3;3;]
     y′ = [0;0;1;1;0;NaN;0;0;1;1;0;NaN;0;0;NaN;1;1;NaN;0;0;NaN;1;1;]
     z′ = [0;0;0;0;0;NaN;1;1;1;1;1;NaN;0;1;NaN;0;1;NaN;0;1;NaN;0;1;]
-    p=plot!(x′,y′,z′,xlim=(0,4),ylim=(-2,3),zlim=(0,1),clim=(0,maximum(P)),lw=2,color=:black)
+    p=plot!(x′,y′,z′,xlim=(0,4),ylim=(-2,3),zlim=(0,1),clim=(0,maximum(u)),lw=2,color=:black)
     p=plot!(cbar=false,cam=(30,60))
 end
 
 
 gif(anim,"teste3d.gif",fps=10)
 
-p=plot!()
+let
+    X = -15 .+ 30*rand(2000)#-3:.1:3
+    Y = 1*rand(2000)#0:.05:1
+    Z = 1*rand(2000)#0:.05:1
+    # X,Y = meshgrid(X,Y)
+    anim = @animate for k in 1:100
+        p=plot(leg=false)
+        x′ = [0;3;3;0;0;NaN;0;3;3;0;0;NaN;0;0;NaN;0;0;NaN;3;3;NaN;3;3;]
+        y′ = [0;0;1;1;0;NaN;0;0;1;1;0;NaN;0;0;NaN;1;1;NaN;0;0;NaN;1;1;]
+        z′ = [0;0;0;0;0;NaN;1;1;1;1;1;NaN;0;1;NaN;0;1;NaN;0;1;NaN;0;1;]
+        p=plot!(x′,y′,z′,xlim=(0,4),ylim=(-2,3),zlim=(0,1),lw=2,color=:black)
+        p=plot!(cbar=false,cam=(30,60))
+        dt = .1
+        Xold = X[:]; Yold= Y[:]; Zold=Z[:]
+        for i in 1:length(X)
+            ix = findmin(abs.(X[i] .-x))[2]
+            iy = findmin(abs.(Y[i] .-y))[2]
+            iz = findmin(abs.(Z[i] .-z))[2]
+            Ux = u[ix,iy,iz]
+            Uy = v[ix,iy,iz]
+            Uz = w[ix,iy,iz]
+            if X[i]<0
+                Ux=1
+            end
+            X[i] = X[i] + dt*Ux
+            Y[i] = Y[i] + dt*Uy
+            Z[i] = Z[i] + dt*Uz
+            if Ux==0 && Uy ==0 && Uz ==0
+                X[i] = NaN
+                Y[i] = NaN
+                Z[i] = NaN
+            end
+        end
+        vest = sqrt.((Xold-X).^2+(Yold-Y).^2+(Zold-Z).^2 )/dt
+        scatter!(X,Y,Z,marker_z=vest,leg=false)
+    end
+    gif(anim,"Flow.gif",fps=15)
+
+end

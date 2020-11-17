@@ -5,7 +5,7 @@ function MomentoX(u_old,v_old,w_old,u,v,w,P,nIT_vel)
     As = zeros(nx+1,ny+1,nz+1)
     At = zeros(nx+1,ny+1,nz+1)
     Ab = zeros(nx+1,ny+1,nz+1)
-    Apu = zeros(nx+1,ny+1,nz+1)
+    Apu = fill(1.0,nx+1,ny+1,nz+1)
     Dcu = zeros(nx+1,ny+1,nz+1)
     Dcc = zeros(nx+1,ny+1,nz+1)
     for i in 3:nx,j in 2:ny,k in 2:nz
@@ -71,7 +71,7 @@ function MomentoY(u_old,v_old,w_old,u,v,w,P,nIT_vel)
     As = zeros(nx+1,ny+1,nz+1)
     At = zeros(nx+1,ny+1,nz+1)
     Ab = zeros(nx+1,ny+1,nz+1)
-    Apv = zeros(nx+1,ny+1,nz+1)
+    Apv = fill(1.0,nx+1,ny+1,nz+1)
     Dcu = zeros(nx+1,ny+1,nz+1)
     Dcc = zeros(nx+1,ny+1,nz+1)
     # u_old,v_old = u[:,:],v[:,:]
@@ -107,7 +107,7 @@ function MomentoY(u_old,v_old,w_old,u,v,w,P,nIT_vel)
         Aw[2,j,k] = maximum([mw,0])+ μ*dy*dz/(dx/2)
     end
 
-    for i in 3:nx, j in 3:ny
+    for i in 2:nx, j in 3:ny
         mt = .5*ρ*dx*dy*(w_old[i,j-1,nz+1]+w_old[i,j,nz+1])
         mb = .5*ρ*dx*dy*(w_old[i,j-1,2]+w_old[i,j,2])
         At[i,j,nz] = maximum([-mt,0])+ μ*dx*dy/(dz/2)
@@ -139,7 +139,7 @@ function MomentoZ(u_old,v_old,w_old,u,v,w,P,nIT_vel)
     As = zeros(nx+1,ny+1,nz+1)
     At = zeros(nx+1,ny+1,nz+1)
     Ab = zeros(nx+1,ny+1,nz+1)
-    Apw = zeros(nx+1,ny+1,nz+1)
+    Apw = fill(1.0,nx+1,ny+1,nz+1)
     Dcu = zeros(nx+1,ny+1,nz+1)
     Dcc = zeros(nx+1,ny+1,nz+1)
     for i in 2:nx,j in 2:ny,k in 3:nz
@@ -187,8 +187,8 @@ function MomentoZ(u_old,v_old,w_old,u,v,w,P,nIT_vel)
 
     for nit = 1:nIT_vel
         for i = 2:nx
-            for j = 3:ny
-                for k = 2:nz
+            for j = 2:ny
+                for k = 3:nz
                     Valor = Ae[i,j,k]*w[i+1,j,k] + Aw[i,j,k]*w[i-1,j,k] + An[i,j,k]*w[i,j+1,k] + As[i,j,k]*w[i,j-1,k] + At[i,j,k]*w[i,j,k+1] + Ab[i,j,k]*w[i,j,k-1] - β*(Dcc[i,j,k]-Dcu[i,j,k]) + dx*dy*(P[i,j,k-1]-P[i,j,k])
                     w[i,j,k] = (1-Ωw)*w_old[i,j,k]+Valor/Apw[i,j,k]
                 end
@@ -215,16 +215,16 @@ function Pressao(u,v,w,P,Apu,Apv,Apw,nIT_P)
         Ab[i,j,k] = ρ*(dx*dy)^2/Apw[i,j,k]
     end
 
-    Ae[nx,:,:]=zeros(size(Ae[nx,:,:]))
-    Aw[2,:,:]=zeros(size(Aw[1,:,:]))
-    An[:,ny,:]=zeros(size(An[:,ny,:]))
-    As[:,2,:]=zeros(size(As[:,1,:]))
-    At[:,:,nz]=zeros(size(At[:,:,nz]))
-    Ab[:,:,2]=zeros(size(Ab[:,:,2]))
+    # Ae[nx,:,:]=zeros(size(Ae[nx,:,:]))
+    # Aw[2,:,:]=zeros(size(Aw[1,:,:]))
+    # An[:,ny,:]=zeros(size(An[:,ny,:]))
+    # As[:,2,:]=zeros(size(As[:,1,:]))
+    # At[:,:,nz]=zeros(size(At[:,:,nz]))
+    # Ab[:,:,2]=zeros(size(Ab[:,:,2]))
 
     App = Ae+Aw+An+As+At+Ab
-    App[2,2,2] = 1e30
-    App[nx,:,:]= fill(1e30,size(App[nx,:,:]))
+    # App[2,2,2] = 1e30
+    App[nx,:,:]= fill(1.0e30,size(App[nx,:,:]))
     Pp = zeros(nx+1,ny+1,nz+1)
     Source = zeros(nx+1,ny+1,nz+1)
     for i in 2:nx,j in 2:ny,k in 2:nz
@@ -300,12 +300,7 @@ function Solve(u,v,w,P,nIt,nIT_vel,nIT_P)
         for j in 2:ny, k in 2:nz
             u[nx+1,j,k] = u[nx,j,k] .+ dx/dy*(v[nx,j,k] - v[nx,j+1,k]) .+ dx/dz*(w[nx,j,k] - w[nx,j,k+1])
         end
-        u[2,:,:] = fill(1,size(u[2,:,:])) # West
-        u[:,1,:] = fill(0,size(u[:,1,:])) # West
-        u[:,ny+1,:] = fill(0,size(u[:,1,:])) # West
-        u[:,:,1] = fill(0,size(u[:,:,1])) # West
-        u[:,:,nz+1] = fill(0,size(u[:,:,1])) # West
-        P[nx,:,:] = fill(0,size(P[1,:,:]))
+        # u[nx+1,:,:] = fill(1.0,size(u[nx+1,:,:]))
 
         erro = ErroSource(u,v,w,erro)
         ## Critérios de parada
