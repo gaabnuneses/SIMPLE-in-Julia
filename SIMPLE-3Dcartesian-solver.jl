@@ -11,10 +11,10 @@ function MomentoX(u_old,v_old,w_old,u,v,w,P,nIT_vel)
     for i in 3:nx,j in 2:ny,k in 2:nz
        me = .5*ρ*dy*dz*(u_old[i+1,j,k]+u_old[i,j,k])
        mw = .5*ρ*dy*dz*(u_old[i-1,j,k]+u_old[i,j,k])
-       mn = .5*ρ*dx*dz*(v_old[i,j+1,k]+v_old[i,j,k])
-       ms = .5*ρ*dx*dz*(v_old[i,j,k]+v_old[i,j-1,k])
-       mt = .5*ρ*dx*dy*(w_old[i,j,k+1]+w_old[i,j,k])
-       mb = .5*ρ*dx*dy*(w_old[i,j,k]+w_old[i,j,k-1])
+       mn = .5*ρ*dx*dz*(v_old[i-1,j+1,k]+v_old[i,j+1,k])
+       ms = .5*ρ*dx*dz*(v_old[i-1,j,k]+v_old[i,j,k])
+       mt = .5*ρ*dx*dy*(w_old[i,j,k+1]+w_old[i-1,j,k+1])
+       mb = .5*ρ*dx*dy*(w_old[i,j,k]+w_old[i-1,j,k])
         Ae[i,j,k] = maximum([-me,0])
         Aw[i,j,k] = maximum([mw,0])
         An[i,j,k] = maximum([-mn,0])
@@ -32,21 +32,19 @@ function MomentoX(u_old,v_old,w_old,u,v,w,P,nIT_vel)
     As = As .+ μ*dx*dz/dy
     At = At .+ μ*dx*dy/dz
     Ab = Ab .+ μ*dx*dy/dz
-    for i in 3:nx
-        mn = .5*ρ*dx*dz*(v_old[i,ny+1,:]+v_old[i,ny,:])
-        ms = .5*ρ*dx*dz*(v_old[i,2,:]+v_old[i,1,:])
-        mt = .5*ρ*dx*dy*(w_old[i,:,nz+1]+w_old[i,:,nz])
-        mb = .5*ρ*dx*dy*(w_old[i,:,1]+w_old[i,:,2])
-        for k in 1:nz+1
-            An[i,ny,k] = maximum([-mn[k],0])+ μ*dx*dz/(dy/2)
-            As[i,2,k] = maximum([ms[k],0])+ μ*dx*dz/(dy/2)
-        end
-        for j in 1:ny+1
-            At[i,j,nz] = maximum([-mt[j],0])+ μ*dx*dy/(dz/2)
-            Ab[i,j,2] = maximum([mb[j],0])+ μ*dx*dy/(dz/2)
-        end
+    for i in 3:nx, k in 2:nz
+        mn = .5*ρ*dx*dz*(v_old[i-1,ny+1,k]+v_old[i,ny+1,k])
+        ms = .5*ρ*dx*dz*(v_old[i-1,2,k]+v_old[i,2,k])
+        An[i,ny,k] = maximum([-mn,0])+ μ*dx*dz/(dy/2)
+        As[i,2,k] = maximum([ms,0])+ μ*dx*dz/(dy/2)
     end
 
+    for i in 3:nx, j in 2:ny
+        mt = .5*ρ*dx*dy*(w_old[i-1,j,nz+1]+w_old[i,j,nz+1])
+        mb = .5*ρ*dx*dy*(w_old[i-1,j,2]+w_old[i,j,2])
+        At[i,j,nz] = maximum([-mt,0])+ μ*dx*dy/(dz/2)
+        Ab[i,j,2] = maximum([mb,0])+ μ*dx*dy/(dz/2)
+    end
 
     Apu = Ae+Aw+An+As+At+Ab
 
@@ -78,12 +76,12 @@ function MomentoY(u_old,v_old,w_old,u,v,w,P,nIT_vel)
     Dcc = zeros(nx+1,ny+1,nz+1)
     # u_old,v_old = u[:,:],v[:,:]
     for i in 2:nx,j in 3:ny,k in 2:nz
-        me = .5*ρ*dy*dz*(u_old[i+1,j,k]+u_old[i,j,k])
-        mw = .5*ρ*dy*dz*(u_old[i-1,j,k]+u_old[i,j,k])
+        me = .5*ρ*dy*dz*(u_old[i+1,j,k]+u_old[i+1,j-1,k])
+        mw = .5*ρ*dy*dz*(u_old[i,j-1,k]+u_old[i,j,k])
         mn = .5*ρ*dx*dz*(v_old[i,j+1,k]+v_old[i,j,k])
         ms = .5*ρ*dx*dz*(v_old[i,j,k]+v_old[i,j-1,k])
-        mt = .5*ρ*dx*dy*(w_old[i,j,k+1]+w_old[i,j,k])
-        mb = .5*ρ*dx*dy*(w_old[i,j,k]+w_old[i,j,k-1])
+        mt = .5*ρ*dx*dy*(w_old[i,j,k+1]+w_old[i,j-1,k+1])
+        mb = .5*ρ*dx*dy*(w_old[i,j,k]+w_old[i,j-1,k])
          Ae[i,j,k] = maximum([-me,0])
          Aw[i,j,k] = maximum([mw,0])
          An[i,j,k] = maximum([-mn,0])
@@ -102,19 +100,18 @@ function MomentoY(u_old,v_old,w_old,u,v,w,P,nIT_vel)
     At = At .+ μ*dx*dy/dz
     Ab = Ab .+ μ*dx*dy/dz
 
-    for j in 3:ny
-       me = .5*ρ*dy*dz*(u_old[nx+1,j,:]+u_old[nx,j-1,:])
-       mw = .5*ρ*dy*dz*(u_old[2,j,:]+u_old[1,j,:])
-       mt = .5*ρ*dx*dy*(w_old[:,j,nz+1]+w_old[:,j,nz])
-       mb = .5*ρ*dx*dy*(w_old[:,j,1]+w_old[:,j,2])
-       for i in 1:nx+1
-           At[i,j,nz] = maximum([-mt[i],0])+ μ*dx*dy/(dz/2)
-           Ab[i,j,2] = maximum([mb[i],0])+ μ*dx*dy/(dz/2)
-       end
-       for k in 1:nz+1
-           Ae[nx,j,k] = maximum([-me[k],0])+ μ*dy*dz/(dx/2)
-           Aw[2,j,k] = maximum([mw[k],0])+ μ*dy*dz/(dx/2)
-       end
+    for j in 3:ny, k in 2:nz
+        me = .5*ρ*dy*dz*(u_old[nx+1,j,k]+u_old[nx+1,j-1,k])
+        mw = .5*ρ*dy*dz*(u_old[2,j-1,k]+u_old[2,j,k])
+        Ae[nx,j,k] = maximum([-me,0])+ μ*dy*dz/(dx/2)
+        Aw[2,j,k] = maximum([mw,0])+ μ*dy*dz/(dx/2)
+    end
+
+    for i in 3:nx, j in 3:ny
+        mt = .5*ρ*dx*dy*(w_old[i,j-1,nz+1]+w_old[i,j,nz+1])
+        mb = .5*ρ*dx*dy*(w_old[i,j-1,2]+w_old[i,j,2])
+        At[i,j,nz] = maximum([-mt,0])+ μ*dx*dy/(dz/2)
+        Ab[i,j,2] = maximum([mb,0])+ μ*dx*dy/(dz/2)
     end
 
     Apv = Ae+Aw+An+As+At+Ab
@@ -171,19 +168,18 @@ function MomentoZ(u_old,v_old,w_old,u,v,w,P,nIT_vel)
     At = At .+ μ*dx*dy/dz
     Ab = Ab .+ μ*dx*dy/dz
 
-    for k in 3:ny
-       me = .5*ρ*dy*dz*(u_old[nx+1,:,k]+u_old[nx,:,k])
-       mw = .5*ρ*dy*dz*(u_old[2,:,k]+u_old[1,:,k])
-       mn = .5*ρ*dx*dz*(v_old[:,ny+1,k]+v_old[:,ny,k])
-       ms = .5*ρ*dx*dz*(v_old[:,2,k]+v_old[:,1,k])
-       for i in 1:nx+1
-           An[i,ny,k] = maximum([-mn[i],0])+ μ*dx*dz/(dy/2)
-           As[i,2,k] = maximum([ms[i],0])+ μ*dx*dz/(dy/2)
-       end
-       for j in 1:ny+1
-           Ae[nx,j,k] = maximum([-me[j],0])+ μ*dy*dz/(dx/2)
-           Aw[2,j,k] = maximum([mw[j],0])+ μ*dy*dz/(dx/2)
-       end
+    for i in 2:nx, k in 3:nz
+        mn = .5*ρ*dx*dz*(v_old[i,ny+1,k]+v_old[i,ny,k])
+        ms = .5*ρ*dx*dz*(v_old[i,2,k]+v_old[i,1,k])
+        An[i,ny,k] = maximum([-mn,0])+ μ*dx*dz/(dy/2)
+        As[i,2,k] = maximum([ms,0])+ μ*dx*dz/(dy/2)
+    end
+
+    for j in 2:ny, k in 3:nz
+        me = .5*ρ*dy*dz*(u_old[nx+1,j,k]+u_old[nx,j,k])
+        mw = .5*ρ*dy*dz*(u_old[2,j,k]+u_old[1,j,k])
+        Ae[nx,j,k] = maximum([-me,0])+ μ*dy*dz/(dx/2)
+        Aw[2,j,k] = maximum([mw,0])+ μ*dy*dz/(dx/2)
     end
 
     Apw = Ae+Aw+An+As+At+Ab

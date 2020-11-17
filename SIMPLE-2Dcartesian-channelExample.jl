@@ -57,4 +57,4 @@ plot(ϵ,m=4,yaxis=:log)
 PlotSolution(u,v,P)
 plot!(size=(1500,500),cbar=false)
 
-plot(x,v,line_z=x)
+plot(y,u',line_z=x',leg=false)
