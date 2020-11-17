@@ -215,11 +215,11 @@ function Pressao(u,v,w,P,Apu,Apv,Apw,nIT_P)
         Ab[i,j,k] = ρ*(dx*dy)^2/Apw[i,j,k]
     end
 
-    # Ae[nx,:,:]=zeros(size(Ae[nx,:,:]))
+    # Ae[end-1,:,:]=zeros(size(Ae[nx,:,:]))
     # Aw[2,:,:]=zeros(size(Aw[1,:,:]))
-    # An[:,ny,:]=zeros(size(An[:,ny,:]))
+    # An[:,end-1,:]=zeros(size(An[:,ny,:]))
     # As[:,2,:]=zeros(size(As[:,1,:]))
-    # At[:,:,nz]=zeros(size(At[:,:,nz]))
+    # At[:,:,end-1]=zeros(size(At[:,:,nz]))
     # Ab[:,:,2]=zeros(size(Ab[:,:,2]))
 
     App = Ae+Aw+An+As+At+Ab

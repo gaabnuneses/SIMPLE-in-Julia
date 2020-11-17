@@ -1,38 +1,6 @@
 using Plots
-
-anim=@animate for i=1:size(P,3)
-    # plot(x,y,P[:,:,i]',clim=(0,maximum(P[2:nx,2:ny,i])),st=:heatmap)
-    p=plot()
-
-    plot()
-    # i=length(x)
-    for j in 2:ny
-        for k in 2:nz
-            x1=x[i]
-            y1=y[j]
-            z1=z[k]
-            x2=x[i] + u[i,j,k]
-            y2=y[j] + v[i,j,k]
-            z2=z[k] + w[i,j,k]
-            Um = P[i,j,k]#sqrt(u[i,j,k]^2+v[i,j,k]^2+w[i,j,k]^2)
-            p=plot3dVec([x1;x2],[y1;y2],[z1;z2],Um)
-            # p=scatter!([x[i]],[y[j]],[z[k]],marker_z=P[i,j,k])
-        end
-    end
-
-    x′ = [0;5;5;0;0;NaN;0;5;5;0;0;NaN;0;0;NaN;0;0;NaN;5;5;NaN;5;5;]
-    y′ = [0;0;1;1;0;NaN;0;0;1;1;0;NaN;0;0;NaN;1;1;NaN;0;0;NaN;1;1;]
-    z′ = [0;0;0;0;0;NaN;1;1;1;1;1;NaN;0;1;NaN;0;1;NaN;0;1;NaN;0;1;]
-    p=plot!(x′,y′,z′,xlim=(0,7),ylim=(-2,3),zlim=(0,1),clim=(0,maximum(P)),lw=2,color=:black)
-    p=plot!(cbar=false,cam=(30,60))
-end
-
-
-gif(anim,"Pressure.gif",fps=10)
-
-p=plot!()
-
 using LinearAlgebra
+
 function plot3dVec(x,y,z,Um,arr=.15)
     u = [x[2]-x[1]; y[2]-y[1]; z[2]-z[1]]
     S = sqrt(sum(u.^2))
@@ -73,6 +41,35 @@ function plot3dVec(x,y,z,Um,arr=.15)
     # Rz = [cos(Θ) -sin(Θ) 0;sin(Θ) cos(Θ) 0;]
 end
 
-sum(dy*dx*u[:,:,end-1])
 
-PlotSolution(u[:,:,16],v[:,:,16],P[:,:,16])
+anim=@animate for i=1:size(P,3)
+    # plot(x,y,P[:,:,i]',clim=(0,maximum(P[2:nx,2:ny,i])),st=:heatmap)
+    p=plot()
+
+    plot()
+    # i=length(x)
+    for j in 2:ny
+        for k in 2:nz
+            x1=x[i]
+            y1=y[j]
+            z1=z[k]
+            x2=x[i] + u[i,j,k]
+            y2=y[j] + v[i,j,k]
+            z2=z[k] + w[i,j,k]
+            Um = P[i,j,k]#sqrt(u[i,j,k]^2+v[i,j,k]^2+w[i,j,k]^2)
+            p=plot3dVec([x1;x2],[y1;y2],[z1;z2],Um)
+            # p=scatter!([x[i]],[y[j]],[z[k]],marker_z=P[i,j,k])
+        end
+    end
+
+    x′ = [0;5;5;0;0;NaN;0;5;5;0;0;NaN;0;0;NaN;0;0;NaN;5;5;NaN;5;5;]
+    y′ = [0;0;1;1;0;NaN;0;0;1;1;0;NaN;0;0;NaN;1;1;NaN;0;0;NaN;1;1;]
+    z′ = [0;0;0;0;0;NaN;1;1;1;1;1;NaN;0;1;NaN;0;1;NaN;0;1;NaN;0;1;]
+    p=plot!(x′,y′,z′,xlim=(0,7),ylim=(-2,3),zlim=(0,1),clim=(0,maximum(P)),lw=2,color=:black)
+    p=plot!(cbar=false,cam=(30,60))
+end
+
+
+gif(anim,"teste3d.gif",fps=10)
+
+p=plot!()
