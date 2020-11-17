@@ -142,8 +142,7 @@ function MomentoZ(u_old,v_old,w_old,u,v,w,P,nIT_vel)
     Apw = zeros(nx+1,ny+1,nz+1)
     Dcu = zeros(nx+1,ny+1,nz+1)
     Dcc = zeros(nx+1,ny+1,nz+1)
-    # u_old,v_old = u[:,:],v[:,:]
-    for i in 2:nx,j in 3:ny,k in 2:nz
+    for i in 2:nx,j in 2:ny,k in 3:nz
         me = .5*ρ*dy*dz*(u_old[i+1,j,k]+u_old[i,j,k])
         mw = .5*ρ*dy*dz*(u_old[i-1,j,k]+u_old[i,j,k])
         mn = .5*ρ*dx*dz*(v_old[i,j+1,k]+v_old[i,j,k])
@@ -216,12 +215,12 @@ function Pressao(u,v,w,P,Apu,Apv,Apw,nIT_P)
         Ab[i,j,k] = ρ*(dx*dy)^2/Apw[i,j,k]
     end
 
-    Ae[nx,:,:]=zeros(size(Ae[nx,:,:]))
-    Aw[2,:,:]=zeros(size(Aw[1,:,:]))
-    An[:,ny,:]=zeros(size(An[:,ny,:]))
-    As[:,2,:]=zeros(size(As[:,1,:]))
-    At[:,:,nz]=zeros(size(At[:,:,nz]))
-    Ab[:,:,2]=zeros(size(Ab[:,:,2]))
+    # Ae[nx,:,:]=zeros(size(Ae[nx,:,:]))
+    # Aw[2,:,:]=zeros(size(Aw[1,:,:]))
+    # An[:,ny,:]=zeros(size(An[:,ny,:]))
+    # As[:,2,:]=zeros(size(As[:,1,:]))
+    # At[:,:,nz]=zeros(size(At[:,:,nz]))
+    # Ab[:,:,2]=zeros(size(Ab[:,:,2]))
 
     App = Ae+Aw+An+As+At+Ab
     # App[2,2] = 1e30
@@ -229,12 +228,9 @@ function Pressao(u,v,w,P,Apu,Apv,Apw,nIT_P)
     Pp = zeros(nx+1,ny+1,nz+1)
     Source = zeros(nx+1,ny+1,nz+1)
     for i in 2:nx,j in 2:ny,k in 2:nz
-        Source[i,j,k] = ρ*dy*dz*(u[i+1,j,k]-u[i,j,k]) + ρ*dx*dz*(v[i,j+1,k]-v[i,j,k]) + ρ*dx*dy*(w[i,j+1,k]-w[i,j,k])
+        Source[i,j,k] = ρ*dy*dz*(u[i+1,j,k]-u[i,j,k]) + ρ*dx*dz*(v[i,j+1,k]-v[i,j,k]) + ρ*dx*dy*(w[i,j,k+1]-w[i,j,k])
     end
 
-    # Total = sqrt(sum(Source.^2))
-    # println("Source = $Total")
-    # erro = [erro;Total]
     for nit in 1:nIT_P
         for k in 2:nz
             for j in 2:ny
@@ -245,7 +241,7 @@ function Pressao(u,v,w,P,Apu,Apv,Apw,nIT_P)
         end
     end
 
-    # Cprrigindo P
+    # Corrigindo P
     for i in 2:nx, j in 2:ny, k in 2:nz
         P[i,j,k]=P[i,j,k] + Ωp*Pp[i,j,k]
     end
@@ -253,15 +249,15 @@ function Pressao(u,v,w,P,Apu,Apv,Apw,nIT_P)
 end
 
 function ConservacaoMassa(u,v,w,P,Pp,Apv,Apu,Apw)
-    # COrrigindo u
+    # Corrigindo u
     for i in 3:nx, j in 2:ny, k in 2:nz
         u[i,j,k]=u[i,j,k] + dy*dz/Apu[i,j,k]*(Pp[i-1,j,k]-Pp[i,j,k])
     end
-    # COrrigindo v
+    # Corrigindo v
     for i in 2:nx, j in 3:ny, k in 2:nz
         v[i,j,k]=v[i,j,k] + dx*dz/Apv[i,j,k]*(Pp[i,j-1,k]-Pp[i,j,k])
     end
-    # COrrigindo v
+    # Corrigindo w
     for i in 2:nx, j in 2:ny, k in 3:nz
         w[i,j,k]=w[i,j,k] + dx*dy/Apw[i,j,k]*(Pp[i,j,k-1]-Pp[i,j,k])
     end
