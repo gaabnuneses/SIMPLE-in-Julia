@@ -1,7 +1,7 @@
 # SIMPLE-in-Julia
 In computational fluid dynamics (CFD), the SIMPLE algorithm is a widely used numerical procedure to solve the Navier–Stokes equations. SIMPLE is an acronym for Semi-Implicit Method for Pressure Linked Equations.
 
-![alt text](https://github.com/gaabnuneses/SIMPLE-in-Julia/blob/main/Cavidade.png?raw=true)
+![alt text](https://github.com/gaabnuneses/SIMPLE-in-Julia/blob/main/example2.gif?raw=true)
 
 
 ## Initialization
