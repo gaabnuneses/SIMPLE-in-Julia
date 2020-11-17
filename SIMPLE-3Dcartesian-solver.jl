@@ -309,6 +309,10 @@ function Solve(u,v,w,P,nIt,nIT_vel,nIT_P)
                 break
             end
         end
+
+        if erro[end]<1e-5
+            break
+        end
         # u[end,:] = u[end-1,:]
     end
     return u,v,w,P,erro
