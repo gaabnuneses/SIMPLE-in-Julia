@@ -215,12 +215,12 @@ function Pressao(u,v,w,P,Apu,Apv,Apw,nIT_P)
         Ab[i,j,k] = ρ*(dx*dy)^2/Apw[i,j,k]
     end
 
-    # Ae[nx,:,:]=zeros(size(Ae[nx,:,:]))
-    # Aw[2,:,:]=zeros(size(Aw[1,:,:]))
-    # An[:,ny,:]=zeros(size(An[:,ny,:]))
-    # As[:,2,:]=zeros(size(As[:,1,:]))
-    # At[:,:,nz]=zeros(size(At[:,:,nz]))
-    # Ab[:,:,2]=zeros(size(Ab[:,:,2]))
+    Ae[nx,:,:]=zeros(size(Ae[nx,:,:]))
+    Aw[2,:,:]=zeros(size(Aw[1,:,:]))
+    An[:,ny,:]=zeros(size(An[:,ny,:]))
+    As[:,2,:]=zeros(size(As[:,1,:]))
+    At[:,:,nz]=zeros(size(At[:,:,nz]))
+    Ab[:,:,2]=zeros(size(Ab[:,:,2]))
 
     App = Ae+Aw+An+As+At+Ab
     # App[2,2,2] = 1e30
@@ -298,7 +298,7 @@ function Solve(u,v,w,P,nIt,nIT_vel,nIT_P)
         # u,v,w,P=setConditions(u,v,w,P)
 
         for j in 2:ny, k in 2:nz
-            u[nx+1,j,k] = u[nx,j,k] .+ dx/dy*(v[nx,j,k] - v[nx,j+1,k]) .+ dx/dz*(w[nx,j,k] - w[nx,j,k+1])
+            u[nx+1,j,k] = u[nx,j,k] .+ dx*dz/dy*(v[nx,j,k] - v[nx,j+1,k]) .+ dx*dy/dz*(w[nx,j,k] - w[nx,j,k+1])
         end
         # u[nx+1,:,:] = fill(1.0,size(u[nx+1,:,:]))
 
