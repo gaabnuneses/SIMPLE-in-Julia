@@ -63,7 +63,7 @@ end
 function PlotVelocityField(x,y,u,v)
     maxVel = maximum(sqrt.(u.^2+v.^2))
     p=plot!(leg=false)
-    for i in 2:2:nx,j in 2:2:ny
+    for i in 2:1:nx,j in 2:1:ny
         ux  = x[2]*u[i,j]/maxVel
         vy  = x[2]*v[i,j]/maxVel
         V = sqrt(u[i,j]^2+v[i,j]^2)
@@ -76,7 +76,7 @@ end
 function PlotSolution(u,v,P)
     p=plot()
     # Pressure Field
-    p=plot!(x[2:end-1],y[2:end-1],P[2:end-1,2:end-1]',st=:heatmap,cam=(0,90))
+    p=plot!(x[1:end],y[1:end],P[1:end,1:end]',st=:heatmap,cam=(0,90))
     # Velocity Field
     p=PlotVelocityField(x,y,u,v)
     p=plot!(xlim=(minimum(x),maximum(x)),ylim=(minimum(y),maximum(y)))

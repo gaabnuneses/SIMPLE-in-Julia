@@ -5,7 +5,7 @@ function MomentoX(u_old,v_old,w_old,u,v,w,P,nIT_vel)
     As = zeros(nx+1,ny+1,nz+1)
     At = zeros(nx+1,ny+1,nz+1)
     Ab = zeros(nx+1,ny+1,nz+1)
-    Apu = fill(1.0,nx+1,ny+1,nz+1)
+    Apu = fill(0.0,nx+1,ny+1,nz+1)
     Dcu = zeros(nx+1,ny+1,nz+1)
     Dcc = zeros(nx+1,ny+1,nz+1)
     for i in 3:nx,j in 2:ny,k in 2:nz
@@ -71,7 +71,7 @@ function MomentoY(u_old,v_old,w_old,u,v,w,P,nIT_vel)
     As = zeros(nx+1,ny+1,nz+1)
     At = zeros(nx+1,ny+1,nz+1)
     Ab = zeros(nx+1,ny+1,nz+1)
-    Apv = fill(1.0,nx+1,ny+1,nz+1)
+    Apv = fill(0.0,nx+1,ny+1,nz+1)
     Dcu = zeros(nx+1,ny+1,nz+1)
     Dcc = zeros(nx+1,ny+1,nz+1)
     # u_old,v_old = u[:,:],v[:,:]
@@ -139,7 +139,7 @@ function MomentoZ(u_old,v_old,w_old,u,v,w,P,nIT_vel)
     As = zeros(nx+1,ny+1,nz+1)
     At = zeros(nx+1,ny+1,nz+1)
     Ab = zeros(nx+1,ny+1,nz+1)
-    Apw = fill(1.0,nx+1,ny+1,nz+1)
+    Apw = fill(0.0,nx+1,ny+1,nz+1)
     Dcu = zeros(nx+1,ny+1,nz+1)
     Dcc = zeros(nx+1,ny+1,nz+1)
     for i in 2:nx,j in 2:ny,k in 3:nz
@@ -310,10 +310,12 @@ function Solve(u,v,w,P,nIt,nIT_vel,nIT_P)
         end
 
 
-        if erro[end]<1e-5
+        if (erro[end]/erro[1])<1e-3
             break
         end
         # u[end,:] = u[end-1,:]
     end
     return u,v,w,P,erro
 end
+
+plot(u[:,iy,6])
