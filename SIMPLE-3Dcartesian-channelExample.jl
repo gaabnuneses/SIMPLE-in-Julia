@@ -6,9 +6,9 @@ function setConditions(u,v,w,P)
     # w[2,:,:] = fill(0.0,size(u[1,:,:])) # West
     # v[2,:,:] = fill(0.0,size(u[1,:,:])) # West
     # P[nx,:,:] = zeros(size(u[nx+1,:,:])) .+0 # LESTE
-    u[10:11,:,1:5] = zeros(size(u[10:11,:,1:5]))
-    v[10:11,:,1:5] = zeros(size(u[10:11,:,1:5]))
-    w[10:11,:,1:5] = zeros(size(u[10:11,:,1:5]))
+    # u[10:11,:,1:12] = zeros(size(u[10:11,:,1:12]))
+    # v[10:11,:,1:12] = zeros(size(u[10:11,:,1:12]))
+    # w[10:11,:,1:12] = zeros(size(u[10:11,:,1:12]))
     for j in 2:ny, k in 2:nz
         u[nx+1,j,k] = u[nx,j,k] #.+ dx*dz/dy*(v[nx,j,k] - v[nx,j+1,k]) .+ dx*dy/dz*(w[nx,j,k] - w[nx,j,k+1])
     end
@@ -16,20 +16,20 @@ function setConditions(u,v,w,P)
 end
 
 # Domain Discretization
-nx = 30; ny = 10;  nz = 10
+nx = 2*30; ny = 2*10;  nz = 2*10
 xmax = 3; ymax = 1;  zmax = 1
 dx = xmax/nx; dy = ymax/ny;  dz = ymax/ny
 x = 0:dx:xmax; y = 0:dy:ymax;  z = 0:dy:ymax
 
 # Fluid Properties
-ρ = 1000
-μ = 0.001
+ρ = 1
+μ = 0.01
 
 # Underelaxation properties
-Ωu = .05
-Ωv = .05
-Ωw = .05
-Ωp = .03
+Ωu = .5
+Ωv = .5
+Ωw = .5
+Ωp = .3
 Ωpp = 1.7
 β = 0.95
 
@@ -45,11 +45,11 @@ const to = TimerOutput();
 u,v,w,P=setConditions(u,v,w,P)
 # u[2,:,:] = fill(0.004,size(u[2,:,:])) # West
 # u[2,:,:] = fill(0.004,size(u[2,:,:])) # West
-u[2,:,:] = fill(0.0004,size(u[1,:,:])) # West
-u[1,:,:] = fill(0.0004,size(u[1,:,:])) # West
+u[2,:,:] = fill(1,size(u[1,:,:])) # West
+u[1,:,:] = fill(1,size(u[1,:,:])) # West
 
 @timeit to "Solução" begin
-    u,v,w,P,ϵ = Solve(u,v,w,P,20,100,100)
+    u,v,w,P,ϵ = Solve(u,v,w,P,100,100,100)
 end
 # Plot iteration convergence
 plot(ϵ,m=4,yaxis=:log)
@@ -78,3 +78,6 @@ savefig("perfilVelocidade.png")
 plot(y,z,u[end,:,:],cam=(60,30),st=:wireframe)
 maximum(u[7,:,:]')
 maximum(u[end,:,:]')
+
+
+to

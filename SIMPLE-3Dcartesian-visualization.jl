@@ -195,102 +195,106 @@ end
 u[1,:,:]=u[2,:,:]
 
 let
-    p=plot(leg=false)
-    x′ = [0;30;30;0;0;NaN;0;30;30;0;0;NaN;0;0;NaN;0;0;NaN;30;30;NaN;30;30;]
-    y′ = [0;0;20;20;0;NaN;0;0;20;20;0;NaN;0;0;NaN;20;20;NaN;0;0;NaN;20;20;]
-    z′ = [0;0;0;0;0;NaN;20;20;20;20;20;NaN;0;20;NaN;0;20;NaN;0;20;NaN;0;20;]
-    p=plot!(x′,y′,z′,xlim=(0,40),ylim=(-20,40),zlim=(0,20),lw=2,color=:black)
-    # x′ = [1;2;2;1;1;NaN;1;2;2;1;1;NaN;1;1;NaN;1;1;NaN;2;2;NaN;2;2;]
-    # y′ = [0;0;1;1;0;NaN;0;0;1;1;0;NaN;0;0;NaN;1;1;NaN;0;0;NaN;1;1;]
-    # z′ = [0;0;0;0;0;NaN;.5;.5;.5;.5;.5;NaN;0;.5;NaN;0;.5;NaN;0;.5;NaN;0;.5;]
-    # p=plot!(x′,y′,z′,xlim=(0,4),ylim=(-1,2),zlim=(0,1),clim=(0,maximum(u)),lw=2,color=:black)
-    phi = 0:pi/10:2*pi;
-    theta = 0:pi/10:pi;
-    xs = [5*cos(t)*sin(p) for t in theta, p in phi] .+ 15 ;
-    ys = [5*sin(t)*sin(p) for t in theta, p in phi] .+ 10 ;
-    zs = [5*cos(p) for t in theta, p in phi] .+ 10 ;
-    plot!(xs,ys,zs,color=:black)
-    plot!(xs',ys',zs',color=:black)
-
-    p=plot!(cbar=false,cam=(30,60))
-
-    dt = .01
-    T = 2500
     n = 100
     X = zeros(1,n)#-3:.1:3
-    Y = 20*rand(1,n)#0:.05:1
-    Z = 20*rand(1,n)#0:.05:1
-    Pre = zeros(T,n+1)
-    for t = 1:T
-        xn = []; yn = []; zn =[]; vn =[]
-        for i in 1:n
-            ix = 1; iy=1; iz=1
-            for j in 1:nx
-                if X[end,i]>=x[j] && X[end,i]<x[j+1]
-                    ix=j
-                    break
-                else X[end,i]>=x[j+1]
-                    ix=j
-                end
-            end
-            for j in 1:ny
-                if Y[end,i]>=y[j] && Y[end,i]<y[j+1]
-                    iy=j
-                    break
-                else Y[end,i]>=y[j+1]
-                    iy=j
-                end
-            end
-            for j in 1:nz
-                if Z[end,i]>=z[j] && Z[end,i]<z[j+1]
-                    iz=j
-                    break
-                else Z[end,i]>=z[j+1]
-                    iz=j
-                end
-            end
-            Ux = u[ix,iy,iz]
-            Uy = v[ix,iy,iz]
-            Uz = w[ix,iy,iz]
+    Y = rand(1,n)#0:.05:1
+    Z = rand(1,n)#0:.05:1
+    tf = 60
+    Pre = zeros(tf,n+1)
+    anim=@animate for T = 1:tf
+        p=plot(leg=false)
+        x′ = [0;3;3;0;0;NaN;0;3;3;0;0;NaN;0;0;NaN;0;0;NaN;3;3;NaN;3;3;]
+        y′ = [0;0;1;1;0;NaN;0;0;1;1;0;NaN;0;0;NaN;1;1;NaN;0;0;NaN;1;1;]
+        z′ = [0;0;0;0;0;NaN;1;1;1;1;1;NaN;0;1;NaN;0;1;NaN;0;1;NaN;0;1;]
+        p=plot!(x′,y′,z′,xlim=(0,40),ylim=(-20,40),zlim=(0,20),lw=2,color=:black)
+        x′ = [.45;.5;.5;.45;.45;NaN;.45;.5;.5;.45;.45;NaN;.45;.45;NaN;.45;.45;NaN;.5;.5;NaN;.5;.5;]
+        y′ = [0;0;1;1;0;NaN;0;0;1;1;0;NaN;0;0;NaN;1;1;NaN;0;0;NaN;1;1;]
+        z′ = [0;0;0;0;0;NaN;.55;.55;.55;.55;.55;NaN;0;.55;NaN;0;.55;NaN;0;.55;NaN;0;.55;]
+        p=plot!(x′,y′,z′,xlim=(0,4),ylim=(-1,2),zlim=(0,1),clim=(0,maximum(u)),lw=2,color=:black)
+        # phi = 0:pi/10:2*pi;
+        # theta = 0:pi/10:pi;
+        # xs = [5*cos(t)*sin(p) for t in theta, p in phi] .+ 15 ;
+        # ys = [5*sin(t)*sin(p) for t in theta, p in phi] .+ 10 ;
+        # zs = [5*cos(p) for t in theta, p in phi] .+ 10 ;
+        # plot!(xs,ys,zs,color=:black)
+        # plot!(xs',ys',zs',color=:black)
 
-            Pre[t,i] = sqrt(Ux^2+Uy^2+Uz^2)#P[ix,iy,iz]
-            if X[i]<0
-                Ux=1
-                Uy=0
-                Uz=0
+        p=plot!(cbar=false,cam=(30,60))
+
+        dt = .001
+        # T = 150
+        for t in 1:T
+            xn = []; yn = []; zn =[]; vn =[]
+            for i in 1:n
+                ix = 1; iy=1; iz=1
+                for j in 1:nx
+                    if X[end,i]>=x[j] && X[end,i]<x[j+1]
+                        ix=j
+                        break
+                    else X[end,i]>=x[j+1]
+                        ix=j
+                    end
+                end
+                for j in 1:ny
+                    if Y[end,i]>=y[j] && Y[end,i]<y[j+1]
+                        iy=j
+                        break
+                    else Y[end,i]>=y[j+1]
+                        iy=j
+                    end
+                end
+                for j in 1:nz
+                    if Z[end,i]>=z[j] && Z[end,i]<z[j+1]
+                        iz=j
+                        break
+                    else Z[end,i]>=z[j+1]
+                        iz=j
+                    end
+                end
+                Ux = u[ix,iy,iz]
+                Uy = v[ix,iy,iz]
+                Uz = w[ix,iy,iz]
+
+                Pre[t,i] = sqrt(Ux^2+Uy^2+Uz^2)#P[ix,iy,iz]
+                if X[i]<0
+                    Ux=1
+                    Uy=0
+                    Uz=0
+                end
+                xn = [xn; X[end,i] + dt*Ux]
+                yn = [yn; Y[end,i] + dt*Uy]
+                zn = [zn; Z[end,i] + dt*Uz]
+                vn = [vn; sqrt(Ux^2+Uy^2+Uz^2)]
+                # if Ux==0 && Uy ==0 && Uz ==0
+                #     X[i] = NaN
+                #     Y[i] = NaN
+                #     Z[i] = NaN
+                #     Vel[i] = NaN
+                # end
+                # if X[i]>3.5 || Y[i]>1 || Y[i]<0 || Z[i]<0 || Z[i]>1
+                #     X[i] = NaN
+                #     Y[i] = NaN
+                #     Z[i] = NaN
+                #     Vel[i] = NaN
+                # end
             end
-            xn = [xn; X[end,i] + dt*Ux]
-            yn = [yn; Y[end,i] + dt*Uy]
-            zn = [zn; Z[end,i] + dt*Uz]
-            vn = [vn; sqrt(Ux^2+Uy^2+Uz^2)]
-            # if Ux==0 && Uy ==0 && Uz ==0
-            #     X[i] = NaN
-            #     Y[i] = NaN
-            #     Z[i] = NaN
-            #     Vel[i] = NaN
-            # end
-            # if X[i]>3.5 || Y[i]>1 || Y[i]<0 || Z[i]<0 || Z[i]>1
-            #     X[i] = NaN
-            #     Y[i] = NaN
-            #     Z[i] = NaN
-            #     Vel[i] = NaN
-            # end
+            X = [X;xn']
+            Y = [Y;yn']
+            Z = [Z;zn']
+            # Pre = [Pre;Pr']
         end
-        X = [X;xn']
-        Y = [Y;yn']
-        Z = [Z;zn']
-        # Pre = [Pre;Pr']
+        display(size(X))
+        # display(size(Pre))
+        # # display(Vel)
+        display(Pre)
+        for i in 1:size(X,2)
+            p=plot!(X[:,i],Y[:,i],Z[:,i],color=:inferno,line_z=Pre[1:T,i]',lw=2,clim=(minimum(Pre),maximum(Pre)))
+        end
+        # scatter!([X[1,:];X[end,:]],[Y[1,:];Y[end,:]],[Z[1,:];Z[end,:]],m=2,color=:inferno,marker_z=[Pre[1,:];Pre[end,:]])
     end
-    display(size(X))
-    display(size(Pre))
-    # display(Vel)
-    display(Pre)
-    for i in 1:size(X,2)
-        p=plot!(X[:,i],Y[:,i],Z[:,i],color=:inferno,line_z=Pre[:,i],lw=2,clim=(minimum(Pre),maximum(Pre)))
-    end
-    scatter!([X[1,:];X[end,:]],[Y[1,:];Y[end,:]],[Z[1,:];Z[end,:]],m=2,color=:inferno,marker_z=[Pre[1,:];Pre[end,:]])
-    p
+    gif(anim,"Flow.gif",fps=15)
 end
+
 plot!(xs,ys,zs,color=:black,ls=:dash)
 plot!(xs',ys',zs',color=:black,ls=:dash)
 savefig("corrente.png")
