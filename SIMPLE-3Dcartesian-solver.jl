@@ -214,7 +214,7 @@ function Pressao(u,v,w,P,Apu,Apv,Apw,nIT_P)
         At[i,j,k] = ρ*(dx*dy)^2/Apw[i,j,k+1]
         Ab[i,j,k] = ρ*(dx*dy)^2/Apw[i,j,k]
     end
-
+    #
     Ae[nx,:,:]=zeros(size(Ae[nx,:,:]))
     Aw[2,:,:]=zeros(size(Aw[1,:,:]))
     An[:,ny,:]=zeros(size(An[:,ny,:]))
@@ -295,12 +295,7 @@ function Solve(u,v,w,P,nIt,nIT_vel,nIT_P)
 
         u,v,w = ConservacaoMassa(u,v,w,P,Pp,Apv,Apu,Apw)
 
-        # u,v,w,P=setConditions(u,v,w,P)
-
-        for j in 2:ny, k in 2:nz
-            u[nx+1,j,k] = u[nx,j,k] .+ dx*dz/dy*(v[nx,j,k] - v[nx,j+1,k]) .+ dx*dy/dz*(w[nx,j,k] - w[nx,j,k+1])
-        end
-        # u[nx+1,:,:] = fill(1.0,size(u[nx+1,:,:]))
+        u,v,w,P=setConditions(u,v,w,P)
 
         erro = ErroSource(u,v,w,erro)
         ## Critérios de parada
@@ -314,21 +309,6 @@ function Solve(u,v,w,P,nIt,nIT_vel,nIT_P)
             end
         end
 
-        for i in 1:nx+1
-            for j in 1:ny+1
-                for k in 1:nz+1
-                    if x[i]>=1&&x[i]<=2
-                        if y[j]>=0&&y[j]<=1
-                            if z[k]>=0&&z[k]<=.5
-                                u[i,j,k] = 0
-                                v[i,j,k] = 0
-                                w[i,j,k] = 0
-                            end
-                        end
-                    end
-                end
-            end
-        end
 
         if erro[end]<1e-5
             break
