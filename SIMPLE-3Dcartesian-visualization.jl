@@ -41,7 +41,7 @@ function plot3dVec(x,y,z,Um,arr=.15)
     # Rz = [cos(Θ) -sin(Θ) 0;sin(Θ) cos(Θ) 0;]
 end
 
-function Plot2DVector(x,y,V,arr=.15)
+function Plot2DVector(x,y,arr=.15)
     plot!(x,y,lw=1,color=:cyan)#line_z=V)
     seta_X = [(1-arr);1;(1-arr)]
     seta_Y = [-arr;0;arr]
@@ -78,7 +78,7 @@ function PlotSolution(u,v,P)
     # Pressure Field
     p=plot!(x[1:end],y[1:end],P[1:end,1:end]',st=:heatmap,cam=(0,90))
     # Velocity Field
-    p=PlotVelocityField(x,y,u,v)
+    # p=PlotVelocityField(x,y,u,v)
     p=plot!(xlim=(minimum(x),maximum(x)),ylim=(minimum(y),maximum(y)))
     display(p)
 end

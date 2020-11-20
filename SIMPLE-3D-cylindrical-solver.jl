@@ -163,6 +163,7 @@ function MomentoY(u_old,v_old,w_old,u,v,w,P,nIT_vel)
             end
         end
     end
+    v[:,2,:]=v[:,ny+1,:]
     return v, Apv
 end
 
@@ -278,7 +279,7 @@ function Pressao(u,v,w,P,Apu,Apv,Apw,nIT_P)
 
     App = Ae+Aw+An+As+At+Ab
     # App[2,2,2] = 1e30
-    App[nx,:,:]= fill(1.0e30,size(App[nx,:,:]))
+    App[:,:,nz]= fill(1.0e30,size(App[:,:,nz]))
     Pp = zeros(nx+1,ny+1,nz+1)
     Source = zeros(nx+1,ny+1,nz+1)
     for i in 2:nx,j in 2:ny,k in 2:nz
@@ -332,7 +333,7 @@ end
 
 function ErroSource(u,v,w,erro)
     Source = zeros(nx+1,ny+1,nz+1)
-    for i in 2:nx,j in 2:ny,k in 2:ny
+    for i in 2:nx,j in 2:ny,k in 2:nz
         ae = (x[i+1]+x[i])/2 * (y[j+1]-y[j-1])/2*(z[k+1]-z[k-1])/2
         aw = (x[i-1]+x[i])/2 * (y[j+1]-y[j-1])/2*(z[k+1]-z[k-1])/2
         an = (x[i+1]-x[i-1])/2*(z[k+1]-z[k-1])/2
