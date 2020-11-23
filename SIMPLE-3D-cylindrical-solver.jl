@@ -286,7 +286,7 @@ function Pressao(u,v,w,P,Apu,Apv,Apw,nIT_P)
     Ab[:,:,2]=zeros(size(Ab[:,:,2]))
 
     App = Ae+Aw+An+As+At+Ab
-    # App[2,2,2] = 1e30
+    App[2,2,2] = 1e30
     App[:,:,nz]= fill(1.0e30,size(App[:,:,nz]))
     Pp = zeros(nx+1,ny+1,nz+1)
     Source = zeros(nx+1,ny+1,nz+1)
