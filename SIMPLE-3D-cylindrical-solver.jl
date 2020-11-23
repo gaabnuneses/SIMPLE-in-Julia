@@ -55,6 +55,15 @@ function MomentoX(u_old,v_old,w_old,u,v,w,P,nIT_vel)
         As[i,2,k] = maximum([ms,0])+ μ*as/((y[2]-y[2-1])*x[i]/2)
     end
 
+    for i in 3:nx, k in 2:nz
+        an = (x[i+1]-x[i+1])/2*(z[k]+z[k+1])/2
+        as = (x[i+1]-x[i+1])/2*(z[k]+z[k+1])/2
+        mn = .5*ρ*an*(v_old[i-1,ny+1,k]+v_old[i,ny+1,k])
+        ms = .5*ρ*as*(v_old[i-1,2,k]+v_old[i,2,k])
+        An[i,ny,k] = maximum([-mn,0])+ μ*an/((y[ny+1]-y[ny])*x[i]/2)
+        As[i,2,k] = maximum([ms,0])+ μ*as/((y[2]-y[2-1])*x[i]/2)
+    end
+
     for i in 3:nx, j in 2:ny
         at = (y[j+1]-y[j])*(((x[i]+x[i+1])/2)^2-((x[i]+x[i-1])/2)^2)/2
         ab = (y[j+1]-y[j])*(((x[i]+x[i+1])/2)^2-((x[i]+x[i-1])/2)^2)/2
@@ -271,8 +280,8 @@ function Pressao(u,v,w,P,Apu,Apv,Apw,nIT_P)
     #
     Ae[nx,:,:]=zeros(size(Ae[nx,:,:]))
     Aw[2,:,:]=zeros(size(Aw[1,:,:]))
-    # An[:,ny,:]=zeros(size(An[:,ny,:]))
-    # As[:,2,:]=zeros(size(As[:,1,:]))
+    An[:,ny,:]=zeros(size(An[:,ny,:]))
+    As[:,2,:]=zeros(size(As[:,1,:]))
     At[:,:,nz]=zeros(size(At[:,:,nz]))
     Ab[:,:,2]=zeros(size(Ab[:,:,2]))
 
@@ -362,12 +371,12 @@ function Solve(u,v,w,P,nIt,nIT_vel,nIT_P)
         ## Momento em Z
         w,Apw = MomentoZ(u_old,v_old,w_old,u,v,w,P,nIT_vel)
 
+        u,v,w,P=setConditions(u,v,w,P)
         ## Pressure correction
         P,Pp = Pressao(u,v,w,P,Apu,Apv,Apw,nIT_P)
 
         u,v,w = ConservacaoMassa(u,v,w,P,Pp,Apv,Apu,Apw)
 
-        u,v,w,P=setConditions(u,v,w,P)
 
         erro = ErroSource(u,v,w,erro)
         ## Critérios de parada
