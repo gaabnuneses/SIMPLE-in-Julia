@@ -60,8 +60,8 @@ function MomentoX(u_old,v_old,w_old,u,v,w,P,nIT_vel)
         ab = (y[j+1]-y[j])*(((x[i]+x[i+1])/2)^2-((x[i]+x[i-1])/2)^2)/2
         mt = .5*ρ*dx*dy*(w_old[i,j-1,nz+1]+w_old[i,j,nz+1])
         mb = .5*ρ*dx*dy*(w_old[i,j-1,2]+w_old[i,j,2])
-        At[i,j,nz] = maximum([-mt,0])+ μ*at/((z[k+1]-z[k])/2)
-        Ab[i,j,2] = maximum([mb,0])+ μ*ab/((z[k]-z[k-1])/2)
+        At[i,j,nz] = maximum([-mt,0])+ μ*at/((z[nz+1]-z[nz])/2)
+        Ab[i,j,2] = maximum([mb,0])+ μ*ab/((z[2]-z[2-1])/2)
     end
 
     # Cálculo
@@ -143,8 +143,8 @@ function MomentoY(u_old,v_old,w_old,u,v,w,P,nIT_vel)
         ab = (y[j+1]-y[j-1])/2*((x[i+1])^2-(x[i-1])^2)/2
         mt = .5*ρ*at*(w_old[i,j-1,nz+1]+w_old[i,j,nz+1])
         mb = .5*ρ*ab*(w_old[i,j-1,2]+w_old[i,j,2])
-        At[i,j,nz] = maximum([-mt,0])+ μ*at/((z[k+1]-z[k])/2)
-        Ab[i,j,2] = maximum([mb,0])+ μ*ab/((z[k]-z[k-1])/2)
+        At[i,j,nz] = maximum([-mt,0])+ μ*at/((z[nz+1]-z[nz])/2)
+        Ab[i,j,2] = maximum([mb,0])+ μ*ab/((z[2]-z[2-1])/2)
     end
 
     Apv = Ae+Aw+An+As+At+Ab
@@ -163,7 +163,6 @@ function MomentoY(u_old,v_old,w_old,u,v,w,P,nIT_vel)
             end
         end
     end
-    v[:,2,:]=v[:,ny+1,:]
     return v, Apv
 end
 
@@ -272,8 +271,8 @@ function Pressao(u,v,w,P,Apu,Apv,Apw,nIT_P)
     #
     Ae[nx,:,:]=zeros(size(Ae[nx,:,:]))
     Aw[2,:,:]=zeros(size(Aw[1,:,:]))
-    An[:,ny,:]=zeros(size(An[:,ny,:]))
-    As[:,2,:]=zeros(size(As[:,1,:]))
+    # An[:,ny,:]=zeros(size(An[:,ny,:]))
+    # As[:,2,:]=zeros(size(As[:,1,:]))
     At[:,:,nz]=zeros(size(At[:,:,nz]))
     Ab[:,:,2]=zeros(size(Ab[:,:,2]))
 

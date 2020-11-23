@@ -17,9 +17,33 @@ function setConditions(u,v,w,P)
     # v[10:11,:,1:12] = zeros(size(u[10:11,:,1:12]))
     # w[10:11,:,1:12] = zeros(size(u[10:11,:,1:12]))
     #
-    u[:,2,:]=u[:,end,:]
-    v[:,2,:]=v[:,end,:]
-    w[:,2,:]=w[:,end,:]
+    # u[:,2,:]=u[:,ny,:]
+    # u[:,2,:]=u[:,ny+1,:]
+    # w[:,2,:]=w[:,ny+1,:]
+    v[:,2,:]=v[:,ny+1,:]
+    # P[:,2,:]=P[:,ny+1,:]
+
+
+
+    # for i in 3:nx, j in 2:ny, k in 2:nz
+    #     ae = (x[i+1]+x[i])/2 * (y[j+1]-y[j-1])/2*(z[k+1]-z[k-1])/2
+    #     aw = (x[i-1]+x[i])/2 * (y[j+1]-y[j-1])/2*(z[k+1]-z[k-1])/2
+    #     u[i,j,k]=u[i,j,k] + 1/Apu[i,j,k]*(aw*Pp[i-1,j,k]-ae*Pp[i,j,k])
+    # end
+    # # Corrigindo v
+    # for i in 2:nx, j in 3:ny, k in 2:nz
+    #     an = (x[i+1]-x[i-1])/2*(z[k+1]-z[k-1])/2
+    #     as = (x[i+1]-x[i-1])/2*(z[k+1]-z[k-1])/2
+    #     v[i,j,k]=v[i,j,k] + 1/Apv[i,j,k]*(as*Pp[i,j-1,k]-an*Pp[i,j,k])
+    # end
+    # # Corrigindo w
+    # for i in 2:nx, j in 2:ny, k in 3:nz
+    #     at = (y[j+1]-y[j-1])/2*(((x[i+1]-x[i])/2)^2-((x[i]-x[i-1])/2)^2)/2
+    #     ab = (y[j+1]-y[j-1])/2*(((x[i+1]-x[i])/2)^2-((x[i]-x[i-1])/2)^2)/2
+    #     w[i,j,k]=w[i,j,k] + 1/Apw[i,j,k]*(ab*Pp[i,j,k-1]-at*Pp[i,j,k])
+    # end
+
+    # w[:,2,:]=w[:,ny,:]
     # P[:,1,:]=P[:,end,:]
     # u[:,:,1]=u[:,:,end]
     # v[:,:,1]=v[:,:,end]
@@ -30,11 +54,10 @@ function setConditions(u,v,w,P)
     return u,v,w,P
 end
 
-plot(y,uvo[5,:,5],m=2)
 # Domain Discretization
-nx = 10; ny = 30;  nz = 10
+nx = 20; ny = 30;  nz = 20
 xmax = 1; ymax = 2π;  zmax = 1
-xmin = 0
+xmin = .4
 dx = (xmax-xmin)/nx; dy = ymax/ny;  dz = zmax/nz
 x = xmin:dx:xmax; y = 0:dy:ymax;  z = 0:dz:zmax
 
@@ -43,10 +66,10 @@ x = xmin:dx:xmax; y = 0:dy:ymax;  z = 0:dz:zmax
 μ = 0.01
 
 # Underelaxation properties
-Ωu = .5
-Ωv = .5
-Ωw = .5
-Ωp = .3
+Ωu = .05
+Ωv = .05
+Ωw = .05
+Ωp = .03
 Ωpp = 1.7
 β = 0.95
 
@@ -64,10 +87,12 @@ u,v,w,P=setConditions(u,v,w,P)
 # u[2,:,:] = fill(0.004,size(u[2,:,:])) # West
 
 @timeit to "Solução" begin
-    u,v,w,P,ϵ = Solve(u,v,w,P,25,100,100)
+    u,v,w,P,ϵ = Solve(u,v,w,P,25,10,120)
 end
 # Plot iteration convergence
 plot(ϵ,m=4,yaxis=:log)
+
+plot(y,v[6,:,5],m=2)
 
 iz = Int(round(nz/2))
 plot(x,z,v[:,iz,:]',st=:heatmap)
@@ -80,17 +105,17 @@ PlotSolution(u[:,:,k],v[:,:,k],P[:,:,k])
 let
     X = [];     Z = [];     Y = [];
     dX = [];    dZ = [];    dY = [];
-    for i in 1:length(x), j in 1:length(y)
+    for i in 1:nx, j in 1:ny
         X = [X; x[i]*cos(y[j])]
         Y = [Y; x[i]*sin(y[j])]
         Z = [Z; P[i,j,iz]]
-        dX = [dX;u[i,j,k]*cos(y[j])-v[i,j,k]*sin(y[j])]
-        dY = [dY;u[i,j,k]*sin(y[j])+v[i,j,k]*cos(y[j])]
+        dX = [dX;u[i,j,iz]*cos(y[j])-v[i,j,iz]*sin(y[j])]
+        dY = [dY;u[i,j,iz]*sin(y[j])+v[i,j,iz]*cos(y[j])]
     end
     plot(X,Y,Z,st=:surface,cam=(0,90),aspect_ratio=:equal,leg=false)
-    for i in 1:length(X)
-        Plot2DVector([X;X+.0000001*dX],[Y;Y+.0000001*dY])
-    end
+    # for i in 1:length(X)
+    #     Plot2DVector([X;X+.0000001*dX],[Y;Y+.0000001*dY])
+    # end
 
     X = [x[1]*cos(i) for i in 0:y[2]:y[end]]
     Y = [x[1]*sin(i) for i in 0:y[2]:y[end]]
@@ -104,9 +129,9 @@ let
     for i in 1:length(x), k in 1:length(z)
         X = [X; x[i]]
         Y = [Y; z[k]]
-        Z = [Z; P[i,13,k]]
-        dX = [dX;u[i,13,k]]
-        dY = [dY;w[i,13,k]]
+        Z = [Z; P[i,16,k]]
+        dX = [dX;u[i,16,k]]
+        dY = [dY;w[i,16,k]]
     end
     plot(X,Y,Z,st=:surface,cam=(0,90),leg=false)
 
@@ -115,7 +140,7 @@ let
     for i in 1:length(x), k in 1:length(z)
         X = [X; x[i]]
         Y = [Y; z[k]]
-        Z = [Z; v[i,2,k]]
+        Z = [Z; P[i,1,k]]
         dX = [dX;u[i,1,k]]
         dY = [dY;w[i,1,k]]
     end
