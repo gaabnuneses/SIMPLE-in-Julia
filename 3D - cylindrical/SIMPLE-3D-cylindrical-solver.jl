@@ -370,12 +370,14 @@ function Solve(u,v,w,P,nIt,nIT_vel,nIT_P)
 
         ## Momento em Z
         w,Apw = MomentoZ(u_old,v_old,w_old,u,v,w,P,nIT_vel)
-
         u,v,w,P=setConditions(u,v,w,P)
+
         ## Pressure correction
         P,Pp = Pressao(u,v,w,P,Apu,Apv,Apw,nIT_P)
-
+        u,v,w,P=setConditions(u,v,w,P)
         u,v,w = ConservacaoMassa(u,v,w,P,Pp,Apv,Apu,Apw)
+
+        u,v,w,P=setConditions(u,v,w,P)
 
 
         erro = ErroSource(u,v,w,erro)
